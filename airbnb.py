@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as tck
 from PIL import Image
 
+# for testing purposes, remove this later!
+from sys import exit
+
 """Data visualization on the Airbnb New York dataset from Kaggle.
 
 The dataset provides 16 pieces of data in the following order:
@@ -103,6 +106,35 @@ wedges, texts, _ = plt.pie(
     autopct='%1.1f%%',
     pctdistance=0.8,
     colors=n_groups_colors)
+plt.show()
+
+# Neighbourhoods
+nbhs, nbhs_count = np.unique(data['neighbourhood'], return_counts=True)
+# zip the neighbourhood name and count into a tuple to sort by count
+nbhs_sorted_tuples = sorted(list(zip(nbhs, nbhs_count)), key=lambda elem: elem[1], reverse=True)
+# unzip the sorted tuples back into a list of names and a list of counts
+nbhs_sorted, nbhs_sorted_count = list(zip(*nbhs_sorted_tuples))
+# take only the top 20
+nbhs_sorted = nbhs_sorted[:20]
+nbhs_sorted_count = nbhs_sorted_count[:20]
+nbhs_price_avgs = []
+for nbh in nbhs_sorted:
+    prices = data['price'][data['neighbourhood'] == nbh]
+    nbhs_price_avgs.append(np.average(prices))
+fig, ax1 = plt.subplots()
+plt.title('Most Popular Neighbourhoods and Average Price')
+# pad the bottom of the plot to prevent text clipping
+plt.subplots_adjust(bottom=0.2)
+# rotate the labels so that they are easier to read
+ax1.set_xticklabels(nbhs_sorted, rotation=45, ha='right')
+ax1.set_xlabel('Neighbourhood');
+# plot number of places on the left y-axis
+ax1.bar(nbhs_sorted, nbhs_sorted_count, width=-0.2, align='edge')
+ax1.set_ylabel('Number of places (blue)')
+# plot average price on the right y-axis
+ax2 = ax1.twinx()
+ax2.bar(nbhs_sorted, nbhs_price_avgs, width=0.2, align='edge', color='orange')
+ax2.set_ylabel('Average price (orange)')
 plt.show()
 
 # Price Histogram
